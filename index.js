@@ -41,7 +41,7 @@ nodeCleanup( (exitCode, signal) => {
 
 var controller = new unifi.Controller(nconf.get('unifi:host'), nconf.get('unifi:port'))
 
-function controllerLogin() {
+function controllerLogin(callback) {
     return controller.getSelf(nconf.get('unifi:site'), (err, result) => {
         if (err == 'api.err.LoginRequired') {
             return controller.login(nconf.get('unifi:user'), nconf.get('unifi:password'), (err) => {
@@ -49,7 +49,10 @@ function controllerLogin() {
                     debug('Login error: ', err)
                     return
                 }
+                callback()
             })
+        } else {
+            callback()
         }
     })
 }
@@ -129,25 +132,27 @@ function scheduleJobs(scheduleActions) {
                 }
                 var j = schedule.scheduleJob({ hour: hour, minute: minute, dayOfWeek: day < 6 ? day + 1 : 0 }, () => {
                     if (el.action == 1) {
-                        controllerLogin()
-                        data.blocked.forEach((client) => {
-                            controller.unblockClient(nconf.get('unifi:site'), '' + client, (err, result) => {
-                                if (err) {
-                                    console.log('Error: ', err)
-                                    return
-                                }
-                                debug('Access allowed @ ', hour, ':', minute)
+                        controllerLogin(() => {
+                            data.blocked.forEach((client) => {
+                                controller.unblockClient(nconf.get('unifi:site'), '' + client, (err, result) => {
+                                    if (err) {
+                                        debug('Error: ', err)
+                                        return
+                                    }
+                                    debug('Access allowed @ ', hour, ':', minute, 'for', client)
+                                })
                             })
                         })
                     } else {
-                        controllerLogin()
-                        data.blocked.forEach((client) => {
-                            controller.blockClient(nconf.get('unifi:site'), '' + client, (err, result) => {
-                                if (err) {
-                                    console.log('Error: ', err)
-                                    return
-                                }
-                                debug('Access blocked @ ', hour, ':', minute)
+                        controllerLogin(() => {
+                            data.blocked.forEach((client) => {
+                                controller.blockClient(nconf.get('unifi:site'), '' + client, (err, result) => {
+                                    if (err) {
+                                        debug('Error: ', err)
+                                        return
+                                    }
+                                    debug('Access blocked @ ', hour, ':', minute, 'for', client)
+                                })
                             })
                         })
                     }
@@ -186,10 +191,11 @@ app.post('/api/blocked-clients', (req, res) => {
 })
 
 app.get('/api/unifi-clients', (req, res) => {
-    controllerLogin()
-    controller.getAllUsers(nconf.get('unifi:site'), (err, users) => {
-        res.status(200).json(users[0])
-    })
+    controllerLogin(
+        controller.getAllUsers(nconf.get('unifi:site'), (err, users) => {
+            res.status(200).json(users[0])
+        })
+    )
 })
 
 app.listen(port, () => {
