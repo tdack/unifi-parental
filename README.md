@@ -33,8 +33,10 @@ The code (javascript, html, css, images and fonts) for the time schedule chart w
 The file `public\js\timer.js` has been modified to return data in a more usable format for both the client and server. Portions of this file have been used in the server side code for scheduling block/unblock actions.
 
 ## TODO
-* Generate block/unblock schedule on startup
-* Keep track of the login state with the Unifi Controller better
-* Error handling if the login state is stale
-* Tidy up the client UI
-  * make the Cancel button actually do something
+* [ ] Generate block/unblock schedule on startup
+* [ ] Check if clients should be blocked/unblocked at the time the schedule is applied
+* [ ] Keep track of the login state with the Unifi Controller better
+* [x] Error handling if the login state is stale
+* [ ] Tidy up the client UI
+  * [ ] make the Cancel button actually do something
+  * [ ] show some confirmation that the schedule has been applied on the server
