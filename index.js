@@ -42,9 +42,9 @@ nodeCleanup( (exitCode, signal) => {
 var controller = new unifi.Controller(nconf.get('unifi:host'), nconf.get('unifi:port'))
 
 function controllerLogin() {
-    controller.getSelf(nconf.get('unifi:site'), (err, result) => {
-        if (result.meta.rc === 'error') {
-            controller.login(nconf.get('unifi:user'), nconf.get('unifi:password'), (err) => {
+    return controller.getSelf(nconf.get('unifi:site'), (err, result) => {
+        if (err == 'api.err.LoginRequired') {
+            return controller.login(nconf.get('unifi:user'), nconf.get('unifi:password'), (err) => {
                 if (err) {
                     debug('Login error: ', err)
                     return
