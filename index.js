@@ -118,7 +118,6 @@ function scheduleJobs(scheduleActions) {
     for (var job in schedule.scheduledJobs) {
         schedule.scheduledJobs[job].cancel()
     }
-    controllerLogin()
     scheduleActions.forEach((el) => {
         for (var day=0; day < 7; day++) {
             if ((el.days & 1 << day)) {
@@ -130,17 +129,25 @@ function scheduleJobs(scheduleActions) {
                 }
                 var j = schedule.scheduleJob({ hour: hour, minute: minute, dayOfWeek: day < 6 ? day + 1 : 0 }, () => {
                     if (el.action == 1) {
-                        debug('Access allowed @ ', hour, ':', minute)
+                        controllerLogin()
                         data.blocked.forEach((client) => {
                             controller.unblockClient(nconf.get('unifi:site'), '' + client, (err, result) => {
-                                if (err) console.log('Error: ', err)
+                                if (err) {
+                                    console.log('Error: ', err)
+                                    return
+                                }
+                                debug('Access allowed @ ', hour, ':', minute)
                             })
                         })
                     } else {
-                        debug('Access blocked @ ', hour, ':', minute)
+                        controllerLogin()
                         data.blocked.forEach((client) => {
                             controller.blockClient(nconf.get('unifi:site'), '' + client, (err, result) => {
-                                if (err) console.log('Error: ', err)
+                                if (err) {
+                                    console.log('Error: ', err)
+                                    return
+                                }
+                                debug('Access blocked @ ', hour, ':', minute)
                             })
                         })
                     }
