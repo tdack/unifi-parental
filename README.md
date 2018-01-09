@@ -1,4 +1,12 @@
-# Unfi timer based block/unblock of clients
+# Unifi-parental
+
+Time based block/unblock of clients for a Unifi based network.
+
+Requires a Unifi Controller accessible.
+
+Uses:
+* node-unifi to access the Unifi Controller.
+* node-schedule for cron like scheduling of the block/unblock actions
 
 ## Installation
 Clone the repo and then do:
