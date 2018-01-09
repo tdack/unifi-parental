@@ -40,12 +40,19 @@ nodeCleanup( (exitCode, signal) => {
 })
 
 var controller = new unifi.Controller(nconf.get('unifi:host'), nconf.get('unifi:port'))
-controller.login(nconf.get('unifi:user'), nconf.get('unifi:password'), (err) => {
-    if (err) {
-        debug('Login error: ', err)
-        return
-    }
-})
+
+function controllerLogin() {
+    controller.getSelf(nconf.get('unifi:site'), (err, result) {
+        if (result.meta.rc === 'error') {
+            controller.login(nconf.get('unifi:user'), nconf.get('unifi:password'), (err) => {
+                if (err) {
+                    debug('Login error: ', err)
+                    return
+                }
+            })
+        }
+    })
+}
 
 /**
 * Consolidates timer data and removes unnecessary midnight disable/enables
@@ -111,6 +118,7 @@ function scheduleJobs(scheduleActions) {
     for (var job in schedule.scheduledJobs) {
         schedule.scheduledJobs[job].cancel()
     }
+    controllerLogin()
     scheduleActions.forEach((el) => {
         for (var day=0; day < 7; day++) {
             if ((el.days & 1 << day)) {
@@ -171,6 +179,7 @@ app.post('/api/blocked-clients', (req, res) => {
 })
 
 app.get('/api/unifi-clients', (req, res) => {
+    controllerLogin()
     controller.getAllUsers(nconf.get('unifi:site'), (err, users) => {
         res.status(200).json(users[0])
     })
