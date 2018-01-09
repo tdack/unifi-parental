@@ -18,7 +18,7 @@ Add Unifi Controller details and login information to `config.json` and `.env` r
 
 Start the server:
 ```
-DEBUG=unifi-timer:* npm start
+DEBUG=unifi-parental:* npm start
 ```
 
 Fire up a browser and head to http://localhost:4000/ to access the interface.

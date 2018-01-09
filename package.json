@@ -1,6 +1,6 @@
 {
   "name": "unifi-parental",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -10,6 +10,7 @@
   },
   "author": "Troy Dack <troy@dack.com.au",
   "license": "MIT",
+  "repository": "github:tdack/unifi-parental",
   "dependencies": {
     "body-parser": "^1.18.2",
     "debug": "^3.1.0",

@@ -1,5 +1,5 @@
 var bodyParser = require('body-parser'),
-    debug = require('debug')('unifi-timer:server'),
+    debug = require('debug')('unifi-parental:server'),
     dotenv = require('dotenv'),
     express = require('express'),
     morgan = require('morgan'),
