@@ -2,7 +2,9 @@
 
 Time based block/unblock of clients for a Unifi based network.
 
-Requires a Unifi Controller accessible.
+## Requires
+* a Unifi Controller accessible over the network
+* NodeJS **v6.11.x** or later (the latest LTS should suffice)
 
 Uses:
 * node-unifi to access the Unifi Controller.
@@ -14,7 +16,7 @@ Clone the repo and then do:
 npm install
 ```
 
-Add Unifi Controller details and login information to `config.json` and `.env` respectively - see `-sample` files for examples
+Add Unifi Controller details and login information to `config.json` and `.env` respectively - see `-sample` files for examples (if you copy the sample files, remove the comments ... `/* xxx .*`)
 
 Start the server:
 ```

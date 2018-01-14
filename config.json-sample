@@ -1,4 +1,4 @@
-{
+{ /* If you copy this file, remove all the comments first */
   "unifi": {
     "host": "192.168.1.250", /* address of Unifi Controller */
     "port": 8443,            /* port of Unifi Controller */
