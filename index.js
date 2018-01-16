@@ -191,7 +191,7 @@ app.post('/api/blocked-clients', (req, res) => {
 })
 
 app.get('/api/unifi-clients', (req, res) => {
-    controllerLogin(
+    controllerLogin( () =>
         controller.getAllUsers(nconf.get('unifi:site'), (err, users) => {
             res.status(200).json(users[0])
         })
