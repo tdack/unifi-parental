@@ -16,7 +16,7 @@ Clone the repo and then do:
 npm install
 ```
 
-Add Unifi Controller details and login information to `config.json` and `.env` respectively - see `-sample` files for examples (if you copy the sample files, remove the comments ... `/* xxx .*`)
+Add Unifi Controller details and login information to `config.json` and `.env` respectively - see `-sample` files for examples (if you copy the sample files, remove the comments ... `/* xxx */`)
 
 Start the server:
 ```
