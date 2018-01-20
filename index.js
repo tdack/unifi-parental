@@ -2,11 +2,13 @@ var bodyParser = require('body-parser'),
     debug = require('debug')('unifi-parental:server'),
     dotenv = require('dotenv'),
     express = require('express'),
+    fs = require('fs'),
     morgan = require('morgan'),
     nconf = require('nconf'),
     nodeCleanup = require('node-cleanup'),
     path = require('path'),
     schedule = require('node-schedule'),
+    spdy = require('spdy'),
     unifi = require('node-unifi')
 
 var app = express(),
@@ -31,6 +33,11 @@ nconf.argv()
 /* set initial data from config file */
 data = nconf.get('data')
 port = nconf.get('server:port') || 4000
+
+const serverOptions = {
+    key: fs.readFileSync(path.resolve(__dirname, './' + nconf.get('server:key'))),
+    cert: fs.readFileSync(path.resolve(__dirname, './' + nconf.get('server:cert')))
+}
 
 nodeCleanup( (exitCode, signal) => {
     controller.logout()
@@ -199,6 +206,12 @@ app.get('/api/unifi-clients', (req, res) => {
     )
 })
 
-app.listen(port, () => {
-    debug('Listening on port', port)
-})
+spdy.createServer(serverOptions, app)
+    .listen(port, (error) => {
+        if (error) {
+            console.error(error)
+            return process.exit(1)
+        } else {
+            debug('Listening on port', port)          
+        }
+    })

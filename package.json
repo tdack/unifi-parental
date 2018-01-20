@@ -20,7 +20,8 @@
     "nconf": "^0.10.0",
     "node-cleanup": "^2.1.2",
     "node-schedule": "^1.2.5",
-    "node-unifi": "^1.2.2"
+    "node-unifi": "^1.2.2",
+    "spdy": "^3.4.7"
   },
   "devDependencies": {
     "eslint": "^4.14.0",

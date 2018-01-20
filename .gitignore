@@ -60,3 +60,8 @@ config.json
 
 # any files in a local dir named 'unused' will be ignored
 unused/
+
+# any ssl certificates and related files
+*.crt
+*.key
+*.csr
