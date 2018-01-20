@@ -1,7 +1,3 @@
-var oldPage;
-function ajaxAllowed() {
-    return !oldPage || !oldPage.jsLocked();
-}
 function ajaxGet(url, callback, abortAfter) {
     return sendXhr("GET", url, null, callback, { abortAfter: abortAfter });
 }
@@ -13,94 +9,6 @@ function ajaxPostJSON(url, postData, callback) {
 }
 function ajaxPostSync(url, postData) {
     return sendXhr("POST", url, postData, null, { aSync: false });
-}
-function ajaxUpdateHtml(uiId, page, sid, timeout, addCallback) {
-    timeout = Number(timeout) || 0;
-    var url = encodeURI(page);
-    url = addUrlParam(url, "update", uiId);
-    if (sid) {
-        url = addUrlParam(url, "sid", sid);
-    }
-    function request() {
-        ajaxGet(url, callback);
-    }
-    function callback(xhr) {
-        if (xhr && xhr.status == 200) {
-            jxl.setHtml(uiId, xhr.responseText);
-            if (addCallback) {
-                var newTimeout = addCallback(uiId, xhr);
-                if (typeof newTimeout == 'number') {
-                    timeout = newTimeout;
-                }
-            }
-            zebra();
-        }
-        if (timeout > 0) {
-            jxl.setTimeout(request, timeout);
-        }
-    }
-    jxl.setTimeout(request, timeout || 0);
-}
-function ajaxWait(vars, sid, poll, cb) {
-    var stop = false;
-    var query = "/query.lua?sid=" + sid;
-    var json = makeJSONParser();
-    for (var name in vars) {
-        query = query + "&" + name + "=" + vars[name].query;
-    }
-    function request() {
-        return ajaxGet(query, cbResponse);
-    }
-    function cbResponse(xhr) {
-        var resp = json(xhr.responseText || "null");
-        if (resp) {
-            for (var name in vars) {
-                vars[name]["value"] = resp[name] || "";
-            }
-        }
-        if (!cb(resp ? vars : null)) {
-            jxl.setTimeout(request, poll);
-        }
-    }
-    return request();
-}
-function ajaxWaitForBox(cbCustom, abort) {
-    var url = encodeURI("/");
-    var timer;
-    var count_retries = 0;
-    var boxStillOnline = true;
-    var requestTimeout = 5000;
-    var finished;
-    function goToBox() {
-        top.location.href = "/";
-    }
-    if (cbCustom && typeof cbCustom == "function") {
-        finished = cbCustom;
-    } else {
-        finished = goToBox;
-    }
-    function callback(response) {
-        if (response && response.status == 200) {
-            if (boxStillOnline) {
-                count_retries++;
-                if (abort && count_retries > abort) {
-                    jxl.setTimeout(finished, 5000);
-                }
-                timer = jxl.setTimeout(doRequest, requestTimeout);
-            }
-            else {
-                jxl.setTimeout(finished, 30000);
-            }
-        }
-        else {
-            boxStillOnline = false;
-            timer = jxl.setTimeout(doRequest, requestTimeout);
-        }
-    }
-    function doRequest() {
-        sendXhr("GET", url, null, callback);
-    }
-    jxl.setTimeout(doRequest, requestTimeout);
 }
 function sendXhr(method, url, postData, callback, options) {
     var allowed = true;
@@ -129,22 +37,16 @@ function sendXhr(method, url, postData, callback, options) {
     }
     xhr.onreadystatechange = function () {
         if (xhr.readyState == 4) {
-            allowed = ajaxAllowed();
-            if (!allowed) {
-                callback = null;
-            }
             clearTimeout(abortTimeout);
-            if (checkLoggedin(xhr)) {
-                if (typeof callback == 'function') {
-                    callback(xhr);
-                    callback = null;
-                }
+            if (typeof callback == 'function') {
+                callback(xhr);
+                callback = null;
             }
             xhr.onreadystatechange = function () { };
         }
     };
     if (abortAfter) {
-        abortTimeout = jxl.setTimeout(function () {
+        abortTimeout = setTimeout(function () {
             stopXhr(xhr);
             if (typeof callback == 'function') {
                 callback("aborted");
@@ -152,13 +54,7 @@ function sendXhr(method, url, postData, callback, options) {
             }
         }, abortAfter);
     }
-    allowed = ajaxAllowed();
-    if (allowed) {
-        xhr.send(postData);
-    }
-    if (typeof oldPage != 'undefined') {
-        oldPage.registerXhr(xhr);
-    }
+    xhr.send(postData);
     return xhr;
 }
 function stopXhr(xhr) {
@@ -182,8 +78,7 @@ function newXhr() {
                 return xhr;
             }
         }
-        catch (err) {
-        }
+        catch (err) {}
     }
     newXhr = function () { return null; };
     return null;
@@ -214,36 +109,6 @@ function addUrlParam(url, name, value) {
         sep = "?";
     }
     return url + sep + buildUrlParam(name, value);
-}
-function addUrlParamTable(params) {
-    var result = [];
-    for (var name in params) {
-        if (params.hasOwnProperty(name)) {
-            result.push(buildUrlParam(name, params[name]));
-        }
-    }
-    return result.join("&");
-}
-function stripSid(url) {
-    url = url || "";
-    url = url.replace(/sid=[a-fA-F0-9]+/g, "")
-    url = url.replace(/\?&/, "?");
-    url = url.replace(/&&/g, "&");
-    url = url.replace(/&$/, "");
-    url = url.replace(/\?$/, "");
-    return url;
-}
-function checkLoggedin(xhr) {
-    if (xhr.status == 403) {
-        var url = (location.href || "").split("#");
-        url[0] = stripSid(url[0]);
-        if (typeof gAppAutoLogoutHint != 'undefined' && gAppAutoLogoutHint === true) {
-            url[0] = addUrlParam(url[0], "logout", "2");
-        }
-        location.href = url.join("#");
-        return false;
-    }
-    return true;
 }
 //-----------------------------------------------------------------------
 // Einen String (Name oder Value) für die POST-Daten codieren.
