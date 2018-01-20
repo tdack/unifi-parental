@@ -10,8 +10,8 @@ var bodyParser = require('body-parser'),
     unifi = require('node-unifi')
 
 var app = express(),
-    data = {}
-    port = process.env.PORT || 4000
+    data = {},
+    port
 
 // Add config from .env to process.env
 dotenv.config({ path: path.resolve(__dirname, '.env') })
@@ -24,12 +24,13 @@ dotenv.config({ path: path.resolve(__dirname, '.env') })
 nconf.argv()
     .env({
         separator: "_",
-        match: /^controller/,
+        match: /^(controller|server)/,
         lowerCase: true
     })
     .file('config', { file: path.resolve(__dirname, './config.json') })
 /* set initial data from config file */
 data = nconf.get('data')
+port = nconf.get('server:port') || 4000
 
 nodeCleanup( (exitCode, signal) => {
     controller.logout()

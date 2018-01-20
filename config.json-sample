@@ -6,6 +6,11 @@
     "password": "",          /* password, .env file is preferred */
     "site": "default"        /* Unifi site to use for block/unblock */
   },
+  "server": {
+    "key": "server.key",     /* filename for ssl key */
+    "cert": "server.crt",    /* filename for ssl certificate */
+    "port": 4000             /* port server is to listen on */
+  },
   "data": {
     "timers": [
       /* array of objects:
