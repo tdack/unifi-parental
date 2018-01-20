@@ -1,5 +1,5 @@
 { /* If you copy this file, remove all the comments first */
-  "unifi": {
+  "controller": {
     "host": "192.168.1.250", /* address of Unifi Controller */
     "port": 8443,            /* port of Unifi Controller */
     "user": "",              /* username, .env file is preferred */

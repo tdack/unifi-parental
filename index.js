@@ -24,7 +24,7 @@ dotenv.config({ path: path.resolve(__dirname, '.env') })
 nconf.argv()
     .env({
         separator: "_",
-        match: /^unifi/,
+        match: /^controller/,
         lowerCase: true
     })
     .file('config', { file: path.resolve(__dirname, './config.json') })
@@ -39,12 +39,12 @@ nodeCleanup( (exitCode, signal) => {
     debug('Config saved')
 })
 
-var controller = new unifi.Controller(nconf.get('unifi:host'), nconf.get('unifi:port'))
+var controller = new unifi.Controller(nconf.get('controller:host'), nconf.get('controller:port'))
 
 function controllerLogin(callback) {
-    return controller.getSelf(nconf.get('unifi:site'), (err, result) => {
+    return controller.getSelf(nconf.get('controller:site'), (err, result) => {
         if (err == 'api.err.LoginRequired') {
-            return controller.login(nconf.get('unifi:user'), nconf.get('unifi:password'), (err) => {
+            return controller.login(nconf.get('controller:user'), nconf.get('controller:password'), (err) => {
                 if (err) {
                     debug('Login error: ', err)
                     return
@@ -134,7 +134,7 @@ function scheduleJobs(scheduleActions) {
                     if (el.action == 1) {
                         controllerLogin(() => {
                             data.blocked.forEach((client) => {
-                                controller.unblockClient(nconf.get('unifi:site'), '' + client, (err, result) => {
+                                controller.unblockClient(nconf.get('controller:site'), '' + client, (err, result) => {
                                     if (err) {
                                         debug('Error: ', err)
                                         return
@@ -146,7 +146,7 @@ function scheduleJobs(scheduleActions) {
                     } else {
                         controllerLogin(() => {
                             data.blocked.forEach((client) => {
-                                controller.blockClient(nconf.get('unifi:site'), '' + client, (err, result) => {
+                                controller.blockClient(nconf.get('controller:site'), '' + client, (err, result) => {
                                     if (err) {
                                         debug('Error: ', err)
                                         return
@@ -192,7 +192,7 @@ app.post('/api/blocked-clients', (req, res) => {
 
 app.get('/api/unifi-clients', (req, res) => {
     controllerLogin( () =>
-        controller.getAllUsers(nconf.get('unifi:site'), (err, users) => {
+        controller.getAllUsers(nconf.get('controller:site'), (err, users) => {
             res.status(200).json(users[0])
         })
     )
