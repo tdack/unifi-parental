@@ -5,6 +5,7 @@ Time based block/unblock of clients for a Unifi based network.
 ## Requires
 * a Unifi Controller accessible over the network
 * NodeJS **v6.11.x** or later (the latest LTS should suffice)
+* openssl installed to generate self signed ssl certificate
 
 Uses:
 * node-unifi to access the Unifi Controller.
@@ -12,18 +13,18 @@ Uses:
 
 ## Installation
 Clone the repo and then do:
-```
-npm install
-```
+1. ```npm install```
 
-Add Unifi Controller details and login information to `config.json` and `.env` respectively - see `-sample` files for examples (if you copy the sample files, remove the comments ... `/* xxx */`)
+2. Generate a self signed certificate using `generate-ssl-cert.sh` - this requires `openssl` to be installed. Alternatively a certificate from [Lets Encrypt](https://letsencrypt.org) using standalone authintication with [CertBot](https://certbot.eff.org) could be used.
 
-Start the server:
+3. Add certificate information, Unifi Controller details and login information to `config.json` and `.env` respectively - see `-sample` files for examples (if you copy the sample files, remove the comments ... `/* xxx */`)
+
+4. Start the server:
 ```
 DEBUG=unifi-parental:* npm start
 ```
 
-Fire up a browser and head to http://localhost:4000/ to access the interface.
+Fire up a browser and head to https://localhost:4000/ to access the interface.
 
 ![User interface](./screenshot.png "User Interface")
 
