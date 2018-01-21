@@ -57,7 +57,19 @@ document.onreadystatechange = () => {
                     gTimer = createTimer('uiTimer', extractTimerData(xhr.response))
                 }
                 var blockedClients = getSelectValues(document.forms[0].elements.namedItem('clients'))
-                ajaxPostJSON('/api/blocked-clients', blockedClients)
+                ajaxPostJSON('/api/blocked-clients', blockedClients, (xhr) => {
+                    if (xhr.status == 200) {
+                        var editTimeDiv = jxl.getByClass('editTime')[0]
+                        var editTimeSpan = editTimeDiv.childNodes[1]
+                        editTimeSpan.innerHTML = 'Saved'
+                        if (!jxl.hasClass(editTimeDiv, "show")) {
+                            jxl.addClass(editTimeDiv, "show");
+                            setTimeout(() => {
+                                jxl.removeClass(editTimeDiv, 'show')
+                            }, 1500)
+                        }
+                    }
+                })
             })
         }
         form.addEventListener('submit', handleformSubmit)
