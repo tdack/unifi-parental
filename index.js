@@ -8,7 +8,6 @@ var bodyParser = require('body-parser'),
     nodeCleanup = require('node-cleanup'),
     path = require('path'),
     schedule = require('node-schedule'),
-    spdy = require('spdy'),
     unifi = require('node-unifi')
 
 var app = express(),
@@ -33,11 +32,6 @@ nconf.argv()
 /* set initial data from config file */
 data = nconf.get('data')
 port = nconf.get('server:port') || 4000
-
-const serverOptions = {
-    key: fs.readFileSync(path.resolve(__dirname, './' + nconf.get('server:key'))),
-    cert: fs.readFileSync(path.resolve(__dirname, './' + nconf.get('server:cert')))
-}
 
 nodeCleanup( (exitCode, signal) => {
     controller.logout()
@@ -206,8 +200,7 @@ app.get('/api/unifi-clients', (req, res) => {
     )
 })
 
-spdy.createServer(serverOptions, app)
-    .listen(port, (error) => {
+app.listen(port, (error) => {
         if (error) {
             console.error(error)
             return process.exit(1)
