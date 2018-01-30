@@ -56,7 +56,7 @@ typings/
 
 # configuration files
 .env
-config.json
+config*.json
 
 # any files in a local dir named 'unused' will be ignored
 unused/

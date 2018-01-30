@@ -29,7 +29,9 @@ nconf.argv()
         match: /^(controller|server)/,
         lowerCase: true
     })
-    .file('config', { file: path.resolve(__dirname, './config.json') })
+configFile = nconf.get('server:config') || './config.json'
+nconf.file('config', { file: path.resolve(__dirname, configFile) })
+
 /* set initial data from config file */
 data = nconf.get('data')
 port = nconf.get('server:port') || 4000
