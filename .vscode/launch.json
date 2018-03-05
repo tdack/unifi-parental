@@ -14,7 +14,7 @@
                 "debug"
             ],
             "env": {
-                "DEBUG": "unifi-timer:*"
+                "DEBUG": "unifi-parental:*"
             },
             "cwd": "${workspaceFolder}/",
             "port": 9229,
