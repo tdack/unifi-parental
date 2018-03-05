@@ -10,6 +10,10 @@ function ajaxPostJSON(url, postData, callback) {
 function ajaxPostSync(url, postData) {
     return sendXhr("POST", url, postData, null, { aSync: false });
 }
+function ajaxDelete(url, postData, callback) {
+    return sendXhr("DELETE", url, postData, callback, { asJSON: false });
+}
+
 function sendXhr(method, url, postData, callback, options) {
     var allowed = true;
     options = options || {};
@@ -26,7 +30,7 @@ function sendXhr(method, url, postData, callback, options) {
         url = addUrlParam(url, "t" + String((new Date()).getTime()), "nocache");
     }
     xhr.open(method, url, aSync);
-    if (method == "POST") {
+    if ((method == "POST") || (method == "DELETE")) {
         if (postAsJSON) {
             xhr.setRequestHeader('Content-Type', 'application/json');
             postData = JSON.stringify(postData);
