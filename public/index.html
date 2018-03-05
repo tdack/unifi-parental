@@ -64,8 +64,63 @@
                 display: none;
             }
         }
-        #clients {
+        .right select {
             width: 15em;
+        }
+        .pickers {
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        /* Remove margins and padding from the list */
+        .pickers ul {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        /* Style the list items */
+        .pickers ul li {
+            cursor: pointer;
+            position: relative;
+            padding: 12px 8px 12px 40px;
+            background: #eee;
+            font-size: 18px;
+            transition: 0.2s;
+
+            /* make the list items unselectable */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        /* Set all odd list items to a different color (zebra-stripes) */
+        .pickers ul li:nth-child(odd) {
+            background: #f9f9f9;
+        }
+
+        /* Darker background-color on hover */
+        .pickers ul li:hover {
+            background: #ddd;
+        }
+        
+        .pickers ul li.checked {
+            background: #888;
+            color: #fff;
+        }
+
+        /* Style the close button */
+        .close {
+            position: absolute;
+            right: 0;
+            top: 0;
+            padding: 12px 16px 12px 16px;
+        }
+
+        .close:hover {
+            background-color: #f44336;
+            color: white;
         }
     </style>
     <div id="content" class="selectable" role="main" aria-live="polite" style="margin: 5px;">
@@ -85,8 +140,16 @@
                             Use CTRL/CMD to select multiple clients.
                         </p>
                         <div>
-                            <select id="clients" name="clients" multiple size=15>
-                            </select>
+                            <div class="pickers">
+                                <input type="text" id="groupName" placeholder="Group name..."><button id="addGroup">Add</button>
+                                <br/>
+                                <ul id="groups" name="groups" size=15>
+                                </ul>
+                            </div>
+                            <div class="pickers">
+                                <select id="clients" name="clients" multiple size=15>
+                                </select>
+                            </div>
                         </div>
                         <div style="clear:both;"></div>
                     </div>
