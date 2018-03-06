@@ -15,9 +15,9 @@ Uses:
 Clone the repo and then do:
 1. ```npm install```
 
-2. Generate a self signed certificate using `generate-ssl-cert.sh` - this requires `openssl` to be installed. Alternatively a certificate from [Lets Encrypt](https://letsencrypt.org) using standalone authintication with [CertBot](https://certbot.eff.org) could be used.
+2. Generate a self signed certificate using `generate-ssl-cert.sh` - this requires `openssl` to be installed. Alternatively a certificate from [Lets Encrypt](https://letsencrypt.org) using standalone authintication with [CertBot](https://certbot.eff.org) could be used. Place generated certificate and key in `server/`
 
-3. Add certificate information, Unifi Controller details and login information to `config.json` and `.env` respectively - see `-sample` files for examples (if you copy the sample files, remove the comments ... `/* xxx */`)
+3. Add certificate information, Unifi Controller details and login information to `server/config.json` and `server/.env` respectively - see `-sample` files for examples (if you copy the sample files, remove the comments ... `/* xxx */`)
 
 4. Start the server:
 ```
