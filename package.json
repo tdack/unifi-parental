@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
-    "debug": "node --nolazy --inspect=9229 index.js"
+    "start": "node server/index.js",
+    "debug": "node --nolazy --inspect=9229 server/index.js"
   },
   "author": "Troy Dack <troy@dack.com.au",
   "license": "MIT",
