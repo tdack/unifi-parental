@@ -18,6 +18,7 @@ let app = express(),
     controller
 
 // Add config from .env to process.env
+console.log(path.resolve(__dirname, '.env'))
 dotenv.config({ path: path.resolve(__dirname, '.env') })
 
 /* Load config from:
