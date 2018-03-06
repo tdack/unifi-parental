@@ -37,4 +37,4 @@ class TimersController {
     }
 }
 
-module.exports = new TimersController
+module.exports = TimersController

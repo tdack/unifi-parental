@@ -38,4 +38,4 @@ class BlockedController {
     }
 }
 
-module.exports = new BlockedController
+module.exports = BlockedController

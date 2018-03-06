@@ -1,4 +1,5 @@
 'use strict'
+const debug = require('debug')('unifi-parental:groups')
 
 const GroupsService = require('../services/groups')
 const BlockedService = require('../services/blocked-clients')
@@ -81,4 +82,4 @@ class GroupsController {
     }
 }
 
-module.exports = new GroupsController
+module.exports = GroupsController
