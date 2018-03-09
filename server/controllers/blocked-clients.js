@@ -31,7 +31,18 @@ class BlockedController {
         let blockedClients = req.body
 
         if (BlockedService.updateBlockedClients(groupId, blockedClients)) {
-            res.sendStatus(204)
+            switch (req.method) {
+                case "POST": {
+                    res.setHeader('Location', req.baseUrl + '/' + groupId);
+                    res.sendStatus(201)
+                    break
+                }
+                case "PUT": {
+                    res.sendStatus(204)
+                    break
+                }
+                default: res.sendStatus(500)
+            }
         } else {
             res.sendStatus(404)
         }
