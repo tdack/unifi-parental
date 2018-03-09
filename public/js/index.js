@@ -50,15 +50,15 @@ let unifiParental = {
 
     handleformSubmit(event) {
         event.preventDefault()
-        let group = unifiParental.groupSelect.getElementsByClassName('checked')[0].dataset.value
+        let groupId = unifiParental.groupSelect.getElementsByClassName('checked')[0].dataset.value
         let data = {}
         data = unifiParental.gTimer.save()
-        ajaxPostJSON('/api/timer/' + group, data, (xhr) => {
+        ajaxPostJSON('/api/V1/timers/' + groupId, data, (xhr) => {
             if (xhr.status == 200) {
                 unifiParental.gTimer = createTimer('uiTimer', unifiParental.extractTimerData(xhr.response))
             }
             let blockedClients = unifiParental.getSelectValues(document.forms[0].elements.namedItem('clients'))
-            ajaxPostJSON('/api/blocked-clients/' + group, blockedClients, (xhr) => {
+            ajaxPostJSON('/api/V1/blocked-clients/' + groupId, blockedClients, (xhr) => {
                 if (xhr.status == 200) {
                     let editTimeDiv = jxl.getByClass('editTime')[0]
                     let editTimeSpan = editTimeDiv.childNodes[1]
@@ -75,17 +75,18 @@ let unifiParental = {
     },
 
     handleGroupClick(event) {
-        let group = event.target.dataset.value
+        let groupId = event.target.dataset.value
         let groupItems = event.target.parentNode.getElementsByTagName('li')
         for (let i = 0; i < groupItems.length; i++) {
             groupItems[i].classList.remove('checked')
         }
         event.target.classList.toggle('checked')
-        ajaxGet('/api/timer/' + group, (res) => {
-            unifiParental.gTimer = createTimer('uiTimer', unifiParental.extractTimerData(res.response))
+        ajaxGet('/api/V1/timers/' + groupId, (res) => {
+            let timerData = res.status === 200 ? unifiParental.extractTimerData(res.response) : []
+            unifiParental.gTimer = createTimer('uiTimer', timerData)
         })
-        ajaxGet('/api/blocked-clients/' + group, (res) => {
-            let blockedClientsSet = new Set(JSON.parse(res.response))
+        ajaxGet('/api/V1/blocked-clients/' + groupId, (res) => {
+            let blockedClientsSet = res.status === 200 ? new Set(JSON.parse(res.response)) : new Set([])
             for (let i = 0; i < unifiParental.clientSelect.children.length; i++) {
                 let clientOption =  unifiParental.clientSelect.children[i]
                 if (blockedClientsSet.has(clientOption.value)) {
@@ -99,32 +100,33 @@ let unifiParental = {
 
     handleAddGroup(event) {
         event.preventDefault()
-        let group = document.getElementById('groupName').value
-        ajaxPost('/api/group/' + group, {name: group}, (res) => {
+        let name = document.getElementById('groupName').value
+        ajaxPost('/api/V1/groups', {name: name}, (res) => {
             if (res.status === 200) {
+                let group = JSON.parse(res.response)
                 let groupOption = document.createElement('li')
                 let span = document.createElement("span")
-                groupOption.setAttribute('data-value', group)
-                groupOption.innerText = group
+                groupOption.setAttribute('data-value', group.id)
+                groupOption.innerText = group.name
                 span.className = "close"
                 span.appendChild(document.createTextNode("\u00D7"))
                 span.onclick = unifiParental.handleDeleteGroup
                 groupOption.appendChild(span)
                 groupOption.onclick = unifiParental.handleGroupClick              
                 unifiParental.groupSelect.appendChild(groupOption)
+                unifiParental.groups.push(group)
                 }
         })
 },
 
     handleDeleteGroup(event) {
         event.stopPropagation()
-        let group = event.target.parentNode.dataset.value
-        ajaxDelete('/api/group/' + group, null, (res) => {
+        let groupId = event.target.parentNode.dataset.value
+        ajaxDelete('/api/V1/groups/' + groupId, null, (res) => {
             event.target.parentNode.parentNode.removeChild(event.target.parentNode)
         })
     }
 }
-
 
 document.onreadystatechange = () => {
     if (document.readyState === 'complete') {
@@ -141,13 +143,13 @@ document.onreadystatechange = () => {
 
         document.getElementById('addGroup').addEventListener('click', unifiParental.handleAddGroup)
 
-        ajaxGet('/api/groups', (res) => {
+        ajaxGet('/api/V1/groups', (res) => {
             unifiParental.groups = JSON.parse(res.response)
             
             for (let group in unifiParental.groups) {
                 let groupOption = document.createElement('li')
                 let span = document.createElement("span")
-                groupOption.setAttribute('data-value', group)
+                groupOption.setAttribute('data-value',  unifiParental.groups[group].id)
                 groupOption.innerText = unifiParental.groups[group].name
                 span.className = "close"
                 span.appendChild(document.createTextNode("\u00D7"))
