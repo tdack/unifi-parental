@@ -16,7 +16,7 @@ class TimersController {
 
     getTimers(req, res) {
         let groupId = req.params.id
-        let timers = TimersService.getTimer(groupId)
+        let timers = TimersService.getTimers(groupId)
 
         if (!timers) {
             res.sendStatus(404)
@@ -27,10 +27,21 @@ class TimersController {
 
     updateTimers(req, res) {
         let groupId = req.params.id
-        let times = req.body
+        let timers = req.body
 
-        if (TimersService.updateTimer(groupId, times)) {
-            res.sendStatus(204)
+        if (TimersService.updateTimers(groupId, timers)) {
+            switch (req.method) {
+                case "POST": {
+                    res.setHeader('Location', req.baseUrl + '/' + groupId);
+                    res.sendStatus(201)
+                    break
+                }
+                case "PUT": {
+                    res.sendStatus(204)
+                    break
+                }
+                default: res.sendStatus(500)
+            }
         } else {
             res.sendStatus(404)
         }
