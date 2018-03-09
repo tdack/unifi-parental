@@ -9,7 +9,6 @@ const nodeCleanup = require('node-cleanup')
 const path = require('path')
 const schedule = require('node-schedule')
 const spdy = require('spdy')
-const unifi = require('node-unifi')
 
 let app = express(),
     data = {},
@@ -46,144 +45,50 @@ const serverOptions = {
 }
 
 nodeCleanup( (exitCode, signal) => {
-    controller.logout()
+    // controller.logout()
     nconf.set('data', data)
     nconf.save();
     debug('Config saved')
 })
 
-controller = new unifi.Controller(nconf.get('controller:host'), nconf.get('controller:port'))
-
-function controllerLogin(callback) {
-    return controller.getSelf(nconf.get('controller:site'), (err, result) => {
-        if (err == 'api.err.LoginRequired') {
-            return controller.login(nconf.get('controller:user'), nconf.get('controller:password'), (err) => {
-                if (err) {
-                    debug('Login error: ', err)
-                    return
-                }
-                callback()
-            })
-        } else {
-            callback()
-        }
-    })
-}
-
-/**
-* Consolidates timer data and removes unnecessary midnight disable/enables
-* @param  {Object} timerdata
-* @param  {number} timerdata[].action - 1=enable, 0=disable
-* @param  {number} timerdata[].days - bitmask of days this action is for Mon=0...Sun=6
-* @param  {string} timerdata[].time - 24hr time that timer is to occur
-*/
-function consolidateTimers(timerdata) {
-    function addDayToBitmap(mask, day) {
-        /*jslint bitwise: true*/
-        mask |= 1 << day;
-        /*jslint bitwise: false*/
-        return mask;
-    }
-    /* Summarise days */
-    let actions = []
-    let complete = false
-    for (let i = 0, len = timerdata.length; i < len; i += 1) {
-        let item = {
-            action: timerdata[i].action,
-            days: addDayToBitmap(0, timerdata[i].day),
-            time: timerdata[i].time
-        };
-        let j = i + 1;
-        while (j < timerdata.length && timerdata[j].time === timerdata[i].time && timerdata[j].action === timerdata[i].action) {
-            item.days = addDayToBitmap(item.days, timerdata[j].day)
-            i = j
-            j += 1
-        }
-        actions.push(item)
-    }
-
-    if (actions.length > 1) {
-        /* remove unnecessary midnight switching times */
-        if (actions[0].time === "0000" && actions[actions.length - 1].time === "2400") {
-            for (let day = 0; day < 7; day += 1) {
-                /*jslint bitwise: true*/
-                if ((actions[actions.length - 1].days & 1 << day) && (actions[0].days & 1 << ((day + 1) % 7))) {
-                    actions[actions.length - 1].days ^= 1 << day
-                    actions[0].days ^= 1 << ((day + 1) % 7)
-                }
-                /*jslint bitwise: false*/
-            }
-            if (actions.length === 2) {
-                complete = true
-            }
-            if (actions[actions.length - 1].days === 0) {
-                actions.pop()
-            }
-            if (actions[0].days === 0) {
-                actions.shift()
-            }
-            if (complete && actions.length !== 0) {
-                complete = false
-            }
-        }
-    }
-    return actions.sort( (a,b) => { return a.time < b.time ? -1 : a.time > b.time ? 1 : a.action - b.action})
-}
-
-function scheduleJobs(group, scheduleActions) {
-    if (timerJobs.hasOwnProperty(group)) {
-        for (let i = 0; i< timerJobs[group].length; i++) {
-            timerJobs[group][i].cancel()
-        }
-        timerJobs[group] = []
-    } else {
-        timerJobs[group] = []
-    }
-    scheduleActions.forEach((el) => {
-        for (let day=0; day < 7; day++) {
-            if ((el.days & 1 << day)) {
-                let hour = parseInt(el.time.slice(0,2))
-                let minute = parseInt(el.time.slice(2,4))
-                if (el.time == "2400") {
-                    hour = 23
-                    minute = 59
-                }
-                timerJobs[group].push(schedule.scheduleJob({ hour: hour, minute: minute, dayOfWeek: day < 6 ? day + 1 : 0 }, () => {
-                    if (el.action == 1) {
-                        controllerLogin(() => {
-                            data.blocked.forEach((client) => {
-                                controller.unblockClient(nconf.get('controller:site'), '' + client, (err, result) => {
-                                    if (err) {
-                                        debug('Error: ', err)
-                                        return
-                                    }
-                                    debug('Access allowed @ ', hour, ':', minute, 'for', client)
-                                })
-                            })
-                        })
-                    } else {
-                        controllerLogin(() => {
-                            data.blocked.forEach((client) => {
-                                controller.blockClient(nconf.get('controller:site'), '' + client, (err, result) => {
-                                    if (err) {
-                                        debug('Error: ', err)
-                                        return
-                                    }
-                                    debug('Access blocked @ ', hour, ':', minute, 'for', client)
-                                })
-                            })
-                        })
-                    }
-                }))
-            }
-        }
-    })
-}
-
 app.use(morgan('dev'))
 app.use(bodyParser.json())
-app.use(express.static(__dirname + '/public'))
 
+let apiRouter = express.Router()
+let apiV1 = express.Router()
+let groupsRouter = express.Router()
+let blockedClientRouter = express.Router()
+let timersRouter = express.Router()
+let unifiRouter = express.Router()
+
+app.use('/api', apiRouter)
+apiRouter.use('/v1', apiV1)
+apiV1.use('/groups', groupsRouter)
+apiV1.use('/blocked-clients', blockedClientRouter)
+apiV1.use('/timers', timersRouter)
+apiV1.use('/unifi-clients', unifiRouter)
+
+app.use(express.static(__dirname + '/../public'))
+
+let GroupsService = require('./services/groups')
+let TimersService = require('./services/timers')
+let BlockedClientService = require('./services/blocked-clients')
+
+let groupController = require('./controllers/groups')
+let blockedClientController = require('./controllers/blocked-clients')
+let timersController = require('./controllers/timers')
+let unifiController = require('./controllers/unifi-clients')
+
+let gc = new groupController(groupsRouter)
+let bc = new blockedClientController(blockedClientRouter)
+let tc = new timersController(timersRouter)
+let uc = new unifiController(unifiRouter)
+
+let g1 = GroupsService.addGroup({name: 'Group 1'})
+let b1 = BlockedClientService.updateBlockedClients(g1.id, ["b8:27:eb:de:91:68", "c8:60:00:9a:ba:ca", "d8:1d:72:c6:20:96", "90:2b:34:05:2f:27", "2c:0e:3d:ad:e7:d4", "50:1a:c5:a9:91:39", "50:1a:c5:a9:91:37"])
+let t1 = TimersService.updateTimers(g1.id,[{"day": 0,  "action": 1,  "time": "0700"},{"day": 0,  "action": 0,  "time": "2230"},{"day": 1,  "action": 1,  "time": "0700"},{"day": 1,  "action": 0,  "time": "2230"}])
+
+/* ********************************************************
 app.get('/api/timer/:group', (req, res) => {
     let group = req.params.group
     data[group].timers.sort( (a,b) => { return a.day < b.day ? -1 : a.day > b.day ? 1 : a.time < b.time ? -1 : a.time > b.time ? 1 : a.action - b.action })
@@ -248,6 +153,7 @@ app.get('/api/unifi-clients', (req, res) => {
         })
     )
 })
+   ******************************************************** */
 
 spdy.createServer(serverOptions, app)
     .listen(port, (error) => {
