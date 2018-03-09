@@ -1,6 +1,9 @@
 'use strict'
 
 const uuidV4 = require('uuid/v4')
+const BlockedService = require('./blocked-clients')
+const TimersService = require('./timers')
+
 
 
 class GroupsService {
@@ -41,7 +44,9 @@ class GroupsService {
 
     deleteGroup(groupId) {
         let oldLen = this.groups.length
-        this.groups = this.groups.filter( g => (g.id === groupId) )
+        this.groups = this.groups.filter( g => (g.id !== groupId) )
+        BlockedService.deleteBlockedClients(groupId)
+        TimersService.deleteTimers(groupId)
         return this.groups.length !== oldLen ? true : false  
     }
 }

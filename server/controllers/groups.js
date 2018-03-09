@@ -2,8 +2,6 @@
 const debug = require('debug')('unifi-parental:groups')
 
 const GroupsService = require('../services/groups')
-const BlockedService = require('../services/blocked-clients')
-const TimersService = require('../services/timers')
 
 class GroupsController {
 
@@ -40,8 +38,7 @@ class GroupsController {
         let groupInfo = req.body
 
         if (GroupsService.addGroup(groupInfo)) {
-            res.setHeader('Location', '/groups/' + groupInfo.id)
-            res.sendStatus(200)
+            res.send(groupInfo)
         } else {
             res.sendStatus(500)
         }
@@ -55,8 +52,7 @@ class GroupsController {
             let groupInfo = req.body
             groupInfo.id = id
             if (GroupsService.addGroup(groupInfo)) {
-                res.setHeader('Location', '/groups/' + groupInfo.id)
-                res.sendStatus(200)
+                res.send(groupInfo)
             } else {
                 res.sendStatus(500)
             }                
@@ -73,8 +69,6 @@ class GroupsController {
         let id = req.params.id
 
         if (GroupsService.deleteGroup(id)) {
-            BlockedService.deleteBlockedClients(id)
-            TimersService.deleteTimer(id)
             res.sendStatus(204)
         } else {
             res.sendStatus(404)
