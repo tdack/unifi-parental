@@ -150,7 +150,7 @@ function scheduleJobs(group, scheduleActions) {
                 timerJobs[group].push(schedule.scheduleJob({ hour: hour, minute: minute, dayOfWeek: day < 6 ? day + 1 : 0 }, () => {
                     if (el.action == 1) {
                         controllerLogin(() => {
-                            data.blocked.forEach((client) => {
+                            data[group].block.forEach((client) => {
                                 controller.unblockClient(nconf.get('controller:site'), '' + client, (err, result) => {
                                     if (err) {
                                         debug('Error: ', err)
@@ -162,7 +162,7 @@ function scheduleJobs(group, scheduleActions) {
                         })
                     } else {
                         controllerLogin(() => {
-                            data.blocked.forEach((client) => {
+                            data[group].block.forEach((client) => {
                                 controller.blockClient(nconf.get('controller:site'), '' + client, (err, result) => {
                                     if (err) {
                                         debug('Error: ', err)
