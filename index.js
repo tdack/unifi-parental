@@ -38,6 +38,7 @@ nconf.file('config', { file: path.resolve(__dirname, configFile) })
 /* set initial data from config file */
 data = nconf.get('data')
 port = nconf.get('server:port') || 4000
+host   = nconf.get('server:host') || '0.0.0.0'
 
 const serverOptions = {
     key: fs.readFileSync(path.resolve(__dirname, './' + nconf.get('server:key'))),
@@ -249,7 +250,7 @@ app.get('/api/unifi-clients', (req, res) => {
 })
 
 spdy.createServer(serverOptions, app)
-    .listen(port, (error) => {
+    .listen(port, host, (error) => {
         if (error) {
             console.error(error)
             return process.exit(1)

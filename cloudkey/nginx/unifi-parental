@@ -1,0 +1,23 @@
+server {
+  listen 192.168.1.10:4000 ssl; # CloudKey ip goes here
+
+  ssl_certificate     /usr/local/src/unifi-parental/cloudkey.crt;
+  ssl_certificate_key /usr/local/src/unifi-parental/cloudkey.key;
+
+
+  server_name unifi.CHANGE.ME; # Your CloudKey name or ip goes here
+
+  location / {
+    satisfy all;
+
+    deny 192.168.1.69;
+    allow 192.168.1.0/24;
+    allow 127.0.0.1;
+    deny all;
+
+    proxy_pass https://127.0.0.1:4000;
+
+    auth_basic            "Networking Admin";
+    auth_basic_user_file  /usr/local/src/unifi-parental/cloudkey/nginx/.htpasswd;
+  }
+}
