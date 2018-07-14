@@ -13,6 +13,7 @@ const unifi = require('node-unifi')
 
 let app = express(),
     data = {},
+    host,
     port,
     timerJobs = {},
     controller
