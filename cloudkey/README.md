@@ -50,8 +50,10 @@ ln -s /usr/local/src/unifi-parental/cloudkey/nginx/unifi-parental /etc/nginx/sit
 ln -s /etc/nginx/sites-available/unifi-parental /etc/nginx/sites-enabled/
 ```
 5. Install unifi-parental service
+
+Note: Step 5 uses a **hard link** rather than a **symbolic link** - Systemd services *cannot* be symlinks.
 ```
-ln -s /usr/local/src/unifi-parental/cloudkey/unifi-parental.service /lib/systemd/system/
+ln /usr/local/src/unifi-parental/cloudkey/unifi-parental.service /lib/systemd/system/
 systemctl enable unifi-parental
 ```
 6. Start unifi-parental service
