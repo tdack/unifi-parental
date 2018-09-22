@@ -4,7 +4,7 @@ Time based block/unblock of clients for a Unifi based network.
 
 ## Requires
 * a Unifi Controller accessible over the network
-* NodeJS **v6.11.x** or later (the latest LTS should suffice)
+* NodeJS **v7.10.x** or later (the latest LTS should suffice)
 * openssl installed to generate self signed ssl certificate
 
 Uses:
@@ -36,8 +36,8 @@ The code (javascript, html, css, images and fonts) for the time schedule chart w
 The file `public\js\timer.js` has been modified to return data in a more usable format for both the client and server. Portions of this file have been used in the server side code for scheduling block/unblock actions.
 
 ## TODO
-* [ ] Generate block/unblock schedule on startup
-* [ ] Check if clients should be blocked/unblocked at the time the schedule is applied
+* [x] Generate block/unblock schedule on startup
+* [x] Check if clients should be blocked/unblocked at the time the schedule is applied
 * [x] Keep track of the login state with the Unifi Controller better
 * [x] Error handling if the login state is stale
 * [ ] Tidy up the client UI
