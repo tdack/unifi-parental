@@ -17,7 +17,8 @@ let app = express(),
     host,
     port,
     timerJobs = {},
-    controller
+    controller,
+    clients = {}
 
 // Add config from .env to process.env
 dotenv.config({ path: path.resolve(__dirname, '.env') })
@@ -161,7 +162,7 @@ const job = (group, accessAllowed, date) => {
                       debug('Error: ', err)
                       return
                   }
-                  debug(`${group} ${date} ${accessAllowed ? "allowed": "blocked"} for ${client}`)
+                  debug(`${group} ${date} ${accessAllowed ? "allowed": "blocked"} for ${clients[client] || client}`)
             })
         })
     })
@@ -180,7 +181,7 @@ function scheduleJobs(group, scheduleActions) {
             minute = 59
         }
         const dayOfWeek = (el.day + 1) % 7;
-        const scheduleMoment = moment().day(dayOfWeek).hour(hour).minute(minute);
+        const scheduleMoment = moment().day(dayOfWeek).hour(hour).minute(minute).second(0);
         jobStates[scheduleMoment.unix()] = el.action;
         timerJobs[group].push(
             schedule.scheduleJob({ hour, minute, dayOfWeek }, () => job(group, el.action == 1, scheduleMoment.format("ddd HH:mm")))
@@ -191,7 +192,7 @@ function scheduleJobs(group, scheduleActions) {
     const currentJob = jobTimes.reduce(( accumulator, currentValue ) => nowInt > currentValue ? currentValue : accumulator,  0);
     if (currentJob != null) {
       // set the current state
-      job(group, jobTimes[currentJob], now.format("ddd HH:mm"))
+      job(group, jobStates[currentJob], "now is")
     }
 }
 
@@ -259,6 +260,8 @@ app.post('/api/blocked-clients/:group', (req, res) => {
 app.get('/api/unifi-clients', (req, res) => {
     controllerLogin( () =>
         controller.getAllUsers(nconf.get('controller:site'), (err, users) => {
+            clients = {};
+            users[0].forEach(user => clients[user.mac] = user.name || user.hostname || user.mac );
             res.status(200).json(users[0] || [{name: "Error: " + err.code}])
         })
     )
@@ -271,6 +274,12 @@ spdy.createServer(serverOptions, app)
             return process.exit(1)
         } else {
             debug('Listening on port', port);
+            controllerLogin( () =>
+                controller.getAllUsers(nconf.get('controller:site'), (err, users) => {
+                    users[0].forEach(user => clients[user.mac] = user.name || user.hostname || user.mac );
+                })
+            )
+
             Object.values(data).forEach(group => {
               scheduleJobs(group.name, group.timers);
             });
