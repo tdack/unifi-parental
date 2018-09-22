@@ -40,7 +40,7 @@ nconf.file('config', { file: path.resolve(__dirname, configFile) })
 /* set initial data from config file */
 data = nconf.get('data')
 port = nconf.get('server:port') || 4000
-host   = nconf.get('server:host') || '0.0.0.0'
+host = nconf.get('server:host') || '0.0.0.0'
 
 const serverOptions = {
     key: fs.readFileSync(path.resolve(__dirname, './' + nconf.get('server:key'))),
@@ -80,6 +80,8 @@ function controllerLogin(callback) {
 * @param  {string} timerdata[].time - 24hr time that timer is to occur
 */
 function consolidateTimers(timerdata) {
+    return timerdata;
+
     function addDayToBitmap(mask, day) {
         /*jslint bitwise: true*/
         mask |= 1 << day;
@@ -135,7 +137,9 @@ function consolidateTimers(timerdata) {
 function cancelAllJobs(group) {
     if (timerJobs.hasOwnProperty(group)) {
         for (let i = 0; i< timerJobs[group].length; i++) {
-            timerJobs[group][i].cancel();
+            if (timerJobs[group][i] != null) {
+              timerJobs[group][i].cancel();
+            }
         }
     }
     timerJobs[group] = [];
@@ -157,7 +161,7 @@ const job = (group, accessAllowed, date) => {
                       debug('Error: ', err)
                       return
                   }
-                  debug(`Access ${accessAllowed ? "allowed": "blocked"} ${date} for ${client} in ${group}`)
+                  debug(`${group} ${date} ${accessAllowed ? "allowed": "blocked"} for ${client}`)
             })
         })
     })
@@ -165,6 +169,9 @@ const job = (group, accessAllowed, date) => {
 
 function scheduleJobs(group, scheduleActions) {
     cancelAllJobs(group);
+    const jobStates = {};
+    const now = moment();
+    const nowInt = now.unix();
     scheduleActions.forEach((el) => {
         let hour = parseInt(el.time.slice(0,2))
         let minute = parseInt(el.time.slice(2,4))
@@ -173,11 +180,19 @@ function scheduleJobs(group, scheduleActions) {
             minute = 59
         }
         const dayOfWeek = (el.day + 1) % 7;
-        const date = moment().day(dayOfWeek).hour(hour).minute(minute).format("ddd hh:mm");
+        const scheduleMoment = moment().day(dayOfWeek).hour(hour).minute(minute);
+        jobStates[scheduleMoment.unix()] = el.action;
         timerJobs[group].push(
-            schedule.scheduleJob({ hour, minute, dayOfWeek }, job(group, el.action == 1, date))
+            schedule.scheduleJob({ hour, minute, dayOfWeek }, () => job(group, el.action == 1, scheduleMoment.format("ddd HH:mm")))
         )
     })
+    // look for current state
+    const jobTimes = Object.keys(jobStates).map(t => parseInt(t)).sort((a, b) => a - b);
+    const currentJob = jobTimes.reduce(( accumulator, currentValue ) => nowInt > currentValue ? currentValue : accumulator,  0);
+    if (currentJob != null) {
+      // set the current state
+      job(group, jobTimes[currentJob], now.format("ddd HH:mm"))
+    }
 }
 
 app.use(morgan('dev'))
