@@ -139,8 +139,13 @@ document.onreadystatechange = () => {
         unifiParental.groupSelect = document.getElementById('groups')
         unifiParental.clientSelect = document.getElementById('clients')
 
-        document.getElementById('addGroup').addEventListener('click', unifiParental.handleAddGroup)
+        let retrievingOption = document.createElement('option');
+        retrievingOption.setAttribute('value', "");
+        retrievingOption.innerText = "retrieving clients from UniFi ....";
+        unifiParental.clientSelect.appendChild(retrievingOption);
 
+        document.getElementById('addGroup').addEventListener('click', unifiParental.handleAddGroup)
+            
         ajaxGet('/api/groups', (res) => {
             unifiParental.groups = JSON.parse(res.response)
             
@@ -163,7 +168,8 @@ document.onreadystatechange = () => {
             unifiParental.clients.sort((a, b) => {
                 let name = (client) => { return typeof (client.name) == 'undefined' ? typeof (client.hostname) == 'undefined' ? client.mac : client.hostname : client.name }
                 return name(a) < name(b) ? -1 : name(a) > name(b) ? 1 : 0
-            })
+            });
+            unifiParental.clientSelect.removeChild(retrievingOption);
             unifiParental.clients.forEach((client) => {
                 let clientOption = document.createElement('option');
                 clientOption.setAttribute('value', client.mac);
