@@ -29,7 +29,7 @@ div.timer_container div.upperHourscale span {
 
 div.timer_container div.hourscale span:first-child,
 div.timer_container div.upperHourscale span:first-child {
-    margin-left: 0px;
+    margin-left: -4px;
 }
 
 div.timer_container div.dayscale {
@@ -136,7 +136,7 @@ div#uiTimerArea,
 div.timerArea {
     /*Hiermit wird ein Scalieren ab Bildschirmen mit einer grösseren Auflösung als FullHD verhindert.
 Somit sieht der Timer immer noch gut aus.*/
-    font-size: 16px;
+    font-size: 14px;
     margin-top: 30px;
     margin-left: 0;
     width: 560px;

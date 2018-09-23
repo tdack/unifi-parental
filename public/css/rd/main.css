@@ -1,11 +1,15 @@
-    div.leftright {
+* {
+    box-sizing: border-box;
+    }
+
+div.leftright {
         width: 100%;
         overflow: hidden;
         border: 1px solid #C6C7BE;
     }
 
     div.leftright div.left {
-        width: 48%;
+        max-width: 50%;
         padding: 20px;
         float: left;
     }
@@ -13,7 +17,8 @@
     div.leftright div.right {
         padding: 20px;
         float: right;
-        width: 46%;
+        width: 50%;
+        min-width: 560px;
     }
 
     input, select, button {
@@ -38,6 +43,7 @@
             display: none;
         }
     }
+
     .right select {
         width: 15em;
     }
