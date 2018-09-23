@@ -168,7 +168,10 @@ document.onreadystatechange = () => {
         ajaxGet('/api/unifi-clients', (res) => {
             unifiParental.clients = JSON.parse(res.response)
             unifiParental.clients.sort((a, b) => {
-                let name = (client) => { return typeof (client.name) == 'undefined' ? typeof (client.hostname) == 'undefined' ? client.mac : client.hostname : client.name }
+                let name = (client) => {
+                  // case insensitive with mac addresses at the end ('z' < '{')
+                  return (client.name || client.hostname || "{"+client.mac).toLowerCase()
+                }
                 return name(a) < name(b) ? -1 : name(a) > name(b) ? 1 : 0
             });
             unifiParental.clientSelect.removeChild(retrievingOption);
