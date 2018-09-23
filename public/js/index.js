@@ -150,7 +150,7 @@ document.onreadystatechange = () => {
 
         ajaxGet('/api/groups', (res) => {
             unifiParental.groups = JSON.parse(res.response)
-
+            let clicked = false;
             for (let group in unifiParental.groups) {
                 let groupOption = document.createElement('li')
                 let span = document.createElement("span")
@@ -162,7 +162,12 @@ document.onreadystatechange = () => {
                 groupOption.appendChild(span)
                 groupOption.onclick = unifiParental.handleGroupClick
                 unifiParental.groupSelect.appendChild(groupOption)
+                if (!clicked) { // select the first group
+                  groupOption.click();
+                  clicked = true;
+                }
             }
+
         })
 
         ajaxGet('/api/unifi-clients', (res) => {
@@ -178,10 +183,11 @@ document.onreadystatechange = () => {
             unifiParental.clients.forEach((client) => {
                 let clientOption = document.createElement('option');
                 clientOption.setAttribute('value', client.mac);
-                clientOption.innerText = typeof (client.name) == 'undefined' ? typeof (client.hostname) == 'undefined' ? client.mac : client.hostname : client.name
+                clientOption.innerText = client.name || client.hostname || client.mac
                 unifiParental.clientSelect.appendChild(clientOption);
             })
             // })
         })
+
     }
 };
