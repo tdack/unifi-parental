@@ -147,6 +147,7 @@ document.onreadystatechange = () => {
         unifiParental.clientSelect.appendChild(retrievingOption);
 
         document.getElementById('addGroup').addEventListener('click', unifiParental.handleAddGroup)
+        let firstGroup = null;
 
         ajaxGet('/api/groups', (res) => {
             unifiParental.groups = JSON.parse(res.response)
@@ -163,7 +164,7 @@ document.onreadystatechange = () => {
                 groupOption.onclick = unifiParental.handleGroupClick
                 unifiParental.groupSelect.appendChild(groupOption)
                 if (!clicked) { // select the first group
-                  groupOption.click();
+                  firstGroup = groupOption;
                   clicked = true;
                 }
             }
@@ -186,7 +187,9 @@ document.onreadystatechange = () => {
                 clientOption.innerText = client.name || client.hostname || client.mac
                 unifiParental.clientSelect.appendChild(clientOption);
             })
-            // })
+            if (firstGroup != null) {
+              firstGroup.click()
+            }
         })
 
     }
