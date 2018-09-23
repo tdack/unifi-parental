@@ -51,7 +51,7 @@ div.timer_container div.dayscale div {
 }
 
 div.timer_container div.dayscale div.weekend {
-    color: #b88521;
+    color: steelblue;
 }
 
 div.timer_container div.week {
@@ -136,7 +136,7 @@ div#uiTimerArea,
 div.timerArea {
     /*Hiermit wird ein Scalieren ab Bildschirmen mit einer grösseren Auflösung als FullHD verhindert.
 Somit sieht der Timer immer noch gut aus.*/
-    font-size: 14px;
+    font-size: 12px;
     margin-top: 30px;
     margin-left: 0;
     width: 560px;
@@ -199,7 +199,7 @@ div.timer_container div.msg_box.hide {
     width: 100%;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 560px) {
     div#uiTimerArea,
     div.timerArea {
         width: auto;

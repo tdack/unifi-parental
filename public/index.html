@@ -1,73 +1,69 @@
-<html>
-<head>
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="css/default/timer.css" class="oldpage" />
+    <link rel="stylesheet" type="text/css" href="css/rd/main.css" />
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
     <script type="text/javascript" src="js/jxl.js"></script>
     <script type="text/javascript" src="js/func.js"></script>
     <script type="text/javascript" src="js/jsl.js"></script>
     <script type="text/javascript" src="js/html2.js"></script>
     <script type="text/javascript" src="js/ajax.js"></script>
     <script type="text/javascript" src="js/timer.js"></script>
-    <style type="text/css">
-        @font-face {
-          font-family: 'Source Sans Pro';
-          src: url('/css/rd/fonts/sourcesanspro.woff');
-        }
-
-        @font-face {
-          font-family: 'Source Sans Pro';
-          src: url('/css/rd/fonts/sourcesansproBold.woff');
-          font-weight: bold;
-        }
-
-        html,
-        input,
-        textarea,
-        keygen,
-        select,
-        button {
-          font-family: 'Source Sans Pro', Arial, sans-serif;
-        }
-    </style>
-    <link rel="stylesheet" type="text/css" href="css/rd/main.css" />
-    <link rel="stylesheet" type="text/css" href="css/default/timer.css" class="oldpage" />
-</head>
+  </head>
 <body>
-    <div id="content" class="selectable" role="main" aria-live="polite" style="margin: 5px;">
-        <div>
-            <form id="uiMainform" name="mainform" class="narrow">
-                <div class="leftright">
-                    <div class="left">
-                        <h1>Groups</h1>
-                        <p>Here you can create groups of one or more clients that will be blocked based on the time schedule.<br/>
-                            Use CTRL/CMD to select multiple clients.
-                        </p>
-                        <div>
-                            <div class="pickers">
-                                <h4>Groups of clients</h4>
-                                <ul id="groups" name="groups" size=15>
-                                </ul>
-                                <input type="text" id="groupName" placeholder="Group name..."><button id="addGroup">Create</button>
-                            </div>
-                            <div class="pickers clients">
-                              <h4>Clients on your LAN</h4>
-                                <select id="clients" name="clients" multiple size=15>
-                                </select>
+    <div id="content" class="container-fluid p-0 selectable" role="main" aria-live="polite">
+        <form id="uiMainform" name="mainform" class="narrow">
+            <div class="row m-2">
+                <div class="col-lg-7 col-md-9 order-md-2 p-md-0">
+                  <div class="jumbotron h-100">
+                    <h1>Time Schedule</h1>
+                    <p>Here you can define the period during which the assigned network devices are allowed to use the Internet.</p>
+                    <div id="uiTimerArea"></div>
+                    <div id="btn_form_foot" class="float-right">
+                        <button type="submit" class="btn btn-primary" name="apply" id="uiApply">Save</button>
+                    </div>
+                  </div>
+              </div>
+                <div class="col-lg-5 col-md-3 pl-md-0 pr-md-2 pt-md-0 pt-2">
+                  <div class="jumbotron h-100">
+                    <h1>Groups</h1>
+                    <p>Here you can create groups of one or more clients that will be blocked based on the time schedule.</p>
+                    <div class="row">
+                        <div class="col-lg-6 pickers">
+                            <p><strong>Groups of clients</strong></p>
+                            <ul id="groups" name="groups list-group" size=15>
+                            </ul>
+                            <div class="input-group mb-3">
+                              <input type="text" id="groupName" class="form-control" placeholder="Group name" aria-label="Group name" aria-describedby="addGroup">
+                              <div class="input-group-append">
+                                <button class="btn btn-secondary" type="button" id="addGroup">Create</button>
+                              </div>
                             </div>
                         </div>
-                        <div style="clear:both;"></div>
-                    </div>
-                    <div class="right">
-                        <h1>Time Schedule</h1>
-                        <p>Here you can define the period during which the assigned network devices are allowed to use the Internet.
-                        </p>
-                                <div id="uiTimerArea">
+                        <div class="col-lg-6 pickers">
+                          <p><strong>Clients on your network</strong></p>
+                            <select id="clients" class="form-control" name="clients" multiple size=15>
+                            </select>
+                            <p class="p-2"><small>Use CTRL/CMD to select multiple clients.</small></p>
                         </div>
                     </div>
+                    <div style="clear:both;"></div>
+                  </div>
                 </div>
-                <div id="btn_form_foot">
-                    <button type="submit" name="apply" id="uiApply">Save</button>
-                </div>
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
 
 <script type="text/javascript" src="js/index.js"></script>

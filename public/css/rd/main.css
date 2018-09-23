@@ -1,58 +1,10 @@
-* {
-    box-sizing: border-box;
-    }
-
-div.leftright {
-        width: 100%;
-        overflow: hidden;
-        border: 1px solid #C6C7BE;
-    }
-
-    div.leftright div.left {
-        max-width: 50%;
-        padding: 20px;
-        float: left;
-    }
-
-    div.leftright div.right {
-        padding: 20px;
-        float: right;
-        width: 50%;
-        min-width: 560px;
-    }
-
-    input, select, button {
-      font-size: 18px;
-    }
-
-    h1 {
-      font-size: 24px;
-    }
-
-
-    @media (max-width: 700px) {
-        div.leftright {
-            border: 0px solid #C6C7BE;
-        }
-        div.leftright div.left {
-            width: auto;
-        }
-        div.leftright div.right {
-            width: auto;
-            margin-left: 0;
-            display: none;
-        }
-    }
-
-    .right select {
-        width: 15em;
-    }
     .pickers {
         display: inline-block;
         vertical-align: top;
     }
-    .clients {
-        margin-left: 32px;
+
+    #clients {
+        width: 100%;
     }
 
 
