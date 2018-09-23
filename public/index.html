@@ -11,13 +11,13 @@
           font-family: 'Source Sans Pro';
           src: url('/css/rd/fonts/sourcesanspro.woff');
         }
-    
+
         @font-face {
           font-family: 'Source Sans Pro';
           src: url('/css/rd/fonts/sourcesansproBold.woff');
           font-weight: bold;
         }
-    
+
         html,
         input,
         textarea,
@@ -31,127 +31,36 @@
     <link rel="stylesheet" type="text/css" href="css/default/timer.css" class="oldpage" />
 </head>
 <body>
-    <style>
-        div.leftright {
-            width: 99%;
-            overflow: hidden;
-            border: 1px solid #C6C7BE;
-        }
-    
-        div.leftright div.left {
-            width: 580px;
-            padding: 2px 0 5px 15px;
-            float: left;
-        }
-    
-        div.leftright div.right {
-            border: 0 solid #C6C7BE;
-            border-left-width: 1px;
-            padding: 2px 0 5px 15px;
-            margin-left: 580px;
-        }
-    
-        @media (max-width: 700px) {
-            div.leftright {
-                border: 0px solid #C6C7BE;
-            }
-            div.leftright div.left {
-                width: auto;
-            }
-            div.leftright div.right {
-                width: auto;
-                margin-left: 0;
-                display: none;
-            }
-        }
-        .right select {
-            width: 15em;
-        }
-        .pickers {
-            display: inline-block;
-            vertical-align: top;
-        }
-
-        /* Remove margins and padding from the list */
-        .pickers ul {
-            margin: 0;
-            padding: 0;
-            list-style: none;
-        }
-
-        /* Style the list items */
-        .pickers ul li {
-            cursor: pointer;
-            position: relative;
-            padding: 12px 8px 12px 40px;
-            background: #eee;
-            font-size: 18px;
-            transition: 0.2s;
-
-            /* make the list items unselectable */
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-        }
-
-        /* Set all odd list items to a different color (zebra-stripes) */
-        .pickers ul li:nth-child(odd) {
-            background: #f9f9f9;
-        }
-
-        /* Darker background-color on hover */
-        .pickers ul li:hover {
-            background: #ddd;
-        }
-        
-        .pickers ul li.checked {
-            background: #888;
-            color: #fff;
-        }
-
-        /* Style the close button */
-        .close {
-            position: absolute;
-            right: 0;
-            top: 0;
-            padding: 12px 16px 12px 16px;
-        }
-
-        .close:hover {
-            background-color: #f44336;
-            color: white;
-        }
-    </style>
     <div id="content" class="selectable" role="main" aria-live="polite" style="margin: 5px;">
         <div>
             <form id="uiMainform" name="mainform" class="narrow">
                 <div class="leftright">
                     <div class="left">
-                        <h4>Time Schedule</h4>
-                        <p>Here you can define the period during which the assigned network devices are allowed to use the Internet.
-                        </p>
-                                <div id="uiTimerArea">
-                        </div>
-                    </div>
-                    <div class="right">
-                        <h4>Groups</h4>
+                        <h1>Groups</h1>
                         <p>Here you can create groups of one or more clients that will be blocked based on the time schedule.<br/>
                             Use CTRL/CMD to select multiple clients.
                         </p>
                         <div>
                             <div class="pickers">
-                                <input type="text" id="groupName" placeholder="Group name..."><button id="addGroup">Create</button>
-                                <br/>
+                                <h4>Groups of clients</h4>
                                 <ul id="groups" name="groups" size=15>
                                 </ul>
+                                <input type="text" id="groupName" placeholder="Group name..."><button id="addGroup">Create</button>
                             </div>
-                            <div class="pickers">
+                            <div class="pickers clients">
+                              <h4>Clients on your LAN</h4>
                                 <select id="clients" name="clients" multiple size=15>
                                 </select>
                             </div>
                         </div>
                         <div style="clear:both;"></div>
+                    </div>
+                    <div class="right">
+                        <h1>Time Schedule</h1>
+                        <p>Here you can define the period during which the assigned network devices are allowed to use the Internet.
+                        </p>
+                                <div id="uiTimerArea">
+                        </div>
                     </div>
                 </div>
                 <div id="btn_form_foot">
@@ -161,6 +70,6 @@
         </div>
     </div>
 
-<script type="text/javascript" src="js/index.js"></script>   
-</body>    
+<script type="text/javascript" src="js/index.js"></script>
+</body>
 </html>

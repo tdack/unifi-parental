@@ -110,18 +110,20 @@ let unifiParental = {
                 span.appendChild(document.createTextNode("\u00D7"))
                 span.onclick = unifiParental.handleDeleteGroup
                 groupOption.appendChild(span)
-                groupOption.onclick = unifiParental.handleGroupClick              
+                groupOption.onclick = unifiParental.handleGroupClick
                 unifiParental.groupSelect.appendChild(groupOption)
                 }
         })
 },
 
     handleDeleteGroup(event) {
+      if (confirm("Are you sure?")) {
         event.stopPropagation()
         let group = event.target.parentNode.dataset.value
         ajaxDelete('/api/group/' + group, null, (res) => {
             event.target.parentNode.parentNode.removeChild(event.target.parentNode)
         })
+      }
     }
 }
 
@@ -145,10 +147,10 @@ document.onreadystatechange = () => {
         unifiParental.clientSelect.appendChild(retrievingOption);
 
         document.getElementById('addGroup').addEventListener('click', unifiParental.handleAddGroup)
-            
+
         ajaxGet('/api/groups', (res) => {
             unifiParental.groups = JSON.parse(res.response)
-            
+
             for (let group in unifiParental.groups) {
                 let groupOption = document.createElement('li')
                 let span = document.createElement("span")
@@ -158,7 +160,7 @@ document.onreadystatechange = () => {
                 span.appendChild(document.createTextNode("\u00D7"))
                 span.onclick = unifiParental.handleDeleteGroup
                 groupOption.appendChild(span)
-                groupOption.onclick = unifiParental.handleGroupClick              
+                groupOption.onclick = unifiParental.handleGroupClick
                 unifiParental.groupSelect.appendChild(groupOption)
             }
         })
