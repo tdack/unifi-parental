@@ -28,7 +28,7 @@ Fire up a browser and head to https://localhost:4000/ to access the interface.
 
 ![User interface](./screenshot.png "User Interface")
 
-Click `OK` to send the schedule to the server and to schedule the block/unblock actions. This is required to be done initially every time the server is started. (ie: the schedule is not applied on startup of the server)
+Click `Save` to send the schedule to the server and to schedule the block/unblock actions. This is required to be done initially every time the server is started. (ie: the schedule is not applied on startup of the server)
 
 ## Note
 The code (javascript, html, css, images and fonts) for the time schedule chart were saved using a browser from a Fritz!Box 7390 ADSL modem/router. The source files served to the browser contained no license information.
@@ -40,6 +40,6 @@ The file `public\js\timer.js` has been modified to return data in a more usable 
 * [x] Check if clients should be blocked/unblocked at the time the schedule is applied
 * [x] Keep track of the login state with the Unifi Controller better
 * [x] Error handling if the login state is stale
-* [ ] Tidy up the client UI
+* [x] Tidy up the client UI
   * [x] ~~make the Cancel button actually do something~~
   * [x] show some confirmation that the schedule has been applied on the server
