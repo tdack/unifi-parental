@@ -76,6 +76,8 @@ let unifiParental = {
 
     handleGroupClick(event) {
         let group = event.target.dataset.value
+        const groupNameSpan = document.getElementById('current_group');
+        groupNameSpan.innerText = group;
         let groupItems = event.target.parentNode.getElementsByTagName('li')
         for (let i = 0; i < groupItems.length; i++) {
             groupItems[i].classList.remove('checked')
