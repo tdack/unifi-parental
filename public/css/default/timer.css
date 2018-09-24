@@ -199,14 +199,19 @@ div.timer_container div.msg_box.hide {
     width: 100%;
 }
 
-@media (max-width: 560px) {
+@media (max-width: 576px) {
     div#uiTimerArea,
     div.timerArea {
         width: auto;
     }
-    div.timer_container,
-    div.time_ctrl_options {
-        display: none;
+    div.timer_container div.hourscale, div.timer_container div.upperHourscale {
+      min-width: 522px;
+      margin: 6px auto 5px -16px;
+    }
+    div.dayscale {
+      position: absolute;
+      margin-left: -17px;
+      opacity: 0.6;
     }
     .mobile_warning {
         display: inline-block;
