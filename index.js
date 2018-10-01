@@ -51,7 +51,7 @@ const serverOptions = {
 nodeCleanup( (exitCode, signal) => {
     controller.logout()
     nconf.set('data', data)
-    nconf.save();
+    nconf.save()
     debug('Config saved')
 })
 
@@ -81,13 +81,13 @@ function controllerLogin(callback) {
 * @param  {string} timerdata[].time - 24hr time that timer is to occur
 */
 function consolidateTimers(timerdata) {
-    return timerdata;
+    return timerdata
 
     function addDayToBitmap(mask, day) {
         /*jslint bitwise: true*/
-        mask |= 1 << day;
+        mask |= 1 << day
         /*jslint bitwise: false*/
-        return mask;
+        return mask
     }
     /* Summarise days */
     let actions = []
@@ -97,8 +97,8 @@ function consolidateTimers(timerdata) {
             action: timerdata[i].action,
             days: addDayToBitmap(0, timerdata[i].day),
             time: timerdata[i].time
-        };
-        let j = i + 1;
+        }
+        let j = i + 1
         while (j < timerdata.length && timerdata[j].time === timerdata[i].time && timerdata[j].action === timerdata[i].action) {
             item.days = addDayToBitmap(item.days, timerdata[j].day)
             i = j
@@ -139,21 +139,21 @@ function cancelAllJobs(group) {
     if (timerJobs.hasOwnProperty(group)) {
         for (let i = 0; i< timerJobs[group].length; i++) {
             if (timerJobs[group][i] != null) {
-              timerJobs[group][i].cancel();
+              timerJobs[group][i].cancel()
             }
         }
     }
-    timerJobs[group] = [];
+    timerJobs[group] = []
 }
 
 const job = (group, accessAllowed, date) => {
     const unifiClient = (...args) => {
       if (accessAllowed) {
-        return controller.unblockClient(...args);
+        return controller.unblockClient(...args)
       } else {
-        return controller.blockClient(...args);
+        return controller.blockClient(...args)
       }
-    };
+    }
 
     controllerLogin(() => {
         data[group].block.forEach((client) => {
@@ -169,10 +169,10 @@ const job = (group, accessAllowed, date) => {
 }
 
 function scheduleJobs(group, scheduleActions) {
-    cancelAllJobs(group);
-    const jobStates = {};
-    const now = moment();
-    const nowInt = now.unix();
+    cancelAllJobs(group)
+    const jobStates = {}
+    const now = moment()
+    const nowInt = now.unix()
     scheduleActions.forEach((el) => {
         let hour = parseInt(el.time.slice(0,2))
         let minute = parseInt(el.time.slice(2,4))
@@ -180,16 +180,16 @@ function scheduleJobs(group, scheduleActions) {
             hour = 23
             minute = 59
         }
-        const dayOfWeek = (el.day + 1) % 7;
-        const scheduleMoment = moment().day(dayOfWeek).hour(hour).minute(minute).second(0);
-        jobStates[scheduleMoment.unix()] = el.action;
+        const dayOfWeek = (el.day + 1) % 7
+        const scheduleMoment = moment().day(dayOfWeek).hour(hour).minute(minute).second(0)
+        jobStates[scheduleMoment.unix()] = el.action
         timerJobs[group].push(
             schedule.scheduleJob({ hour, minute, dayOfWeek }, () => job(group, el.action == 1, scheduleMoment.format("ddd HH:mm")))
         )
     })
     // look for current state
-    const jobTimes = Object.keys(jobStates).map(t => parseInt(t)).sort((a, b) => a - b);
-    const currentJob = jobTimes.reduce(( accumulator, currentValue ) => nowInt > currentValue ? currentValue : accumulator,  0);
+    const jobTimes = Object.keys(jobStates).map(t => parseInt(t)).sort((a, b) => a - b)
+    const currentJob = jobTimes.reduce(( accumulator, currentValue ) => nowInt > currentValue ? currentValue : accumulator,  0)
     if (currentJob != null) {
       // set the current state
       job(group, jobStates[currentJob], "now is")
@@ -260,8 +260,8 @@ app.post('/api/blocked-clients/:group', (req, res) => {
 app.get('/api/unifi-clients', (req, res) => {
     controllerLogin( () =>
         controller.getAllUsers(nconf.get('controller:site'), (err, users) => {
-            clients = {};
-            users[0].forEach(user => clients[user.mac] = user.name || user.hostname || user.mac );
+            clients = {}
+            users[0].forEach(user => clients[user.mac] = user.name || user.hostname || user.mac )
             res.status(200).json(users[0] || [{name: "Error: " + err.code}])
         })
     )
@@ -273,15 +273,15 @@ spdy.createServer(serverOptions, app)
             console.error(error)
             return process.exit(1)
         } else {
-            debug('Listening on port', port);
+            debug('Listening on port', port)
             controllerLogin( () =>
                 controller.getAllUsers(nconf.get('controller:site'), (err, users) => {
-                    users[0].forEach(user => clients[user.mac] = user.name || user.hostname || user.mac );
+                    users[0].forEach(user => clients[user.mac] = user.name || user.hostname || user.mac )
                 })
             )
 
             Object.values(data).forEach(group => {
-              scheduleJobs(group.name, group.timers);
-            });
+              scheduleJobs(group.name, group.timers)
+            })
         }
     })
