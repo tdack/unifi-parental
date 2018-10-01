@@ -17,7 +17,12 @@ Clone the repo and then do:
 
 2. Generate a self signed certificate using `generate-ssl-cert.sh` - this requires `openssl` to be installed. Alternatively a certificate from [Lets Encrypt](https://letsencrypt.org) using standalone authintication with [CertBot](https://certbot.eff.org) could be used.
 
-3. Add certificate information, Unifi Controller details and login information to `config.json` and `.env` respectively - see `-sample` files for examples (if you copy the sample files, remove the comments ... `/* xxx */`)
+3. Add certificate information, Unifi Controller details and login information to `config.json` and `.env` respectively - see `-sample` files for examples
+  * if you copy the sample files, remove the comments ... `/* xxx */`
+  * try this `sed` one liner if you are using Linux/MacOS
+```
+  sed -r ':a; s%(.*)/\*.*\*/%\1%; ta; /\/\*/ !b; N; ba' config-sample.jsonc > config.json
+```
 
 4. Start the server:
 ```
