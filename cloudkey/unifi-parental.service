@@ -1,0 +1,17 @@
+[Unit]
+Description=unifi-parental
+After=unifi.service
+Wants=unifi.service
+
+[Service]
+Restart=always
+Type=simple
+TimeoutSec=5min
+KillMode=control-group
+NotifyAccess=all
+Environment=DEBUG=unifi-parental:*
+ExecStart=/usr/local/src/unifi-parental/cloudkey/unifi-parental.sh
+ExecStop=pkill -f unifi-parental.sh
+
+[Install]
+WantedBy=multi-user.target

@@ -16,6 +16,7 @@
     "debug": "^3.1.0",
     "dotenv": "^4.0.0",
     "express": "^4.16.2",
+    "moment": "^2.22.2",
     "morgan": "^1.9.0",
     "nconf": "^0.10.0",
     "node-cleanup": "^2.1.2",

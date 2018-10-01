@@ -76,6 +76,8 @@ let unifiParental = {
 
     handleGroupClick(event) {
         let group = event.target.dataset.value
+        const groupNameSpan = document.getElementById('current_group');
+        groupNameSpan.innerText = group;
         let groupItems = event.target.parentNode.getElementsByTagName('li')
         for (let i = 0; i < groupItems.length; i++) {
             groupItems[i].classList.remove('checked')
@@ -110,18 +112,20 @@ let unifiParental = {
                 span.appendChild(document.createTextNode("\u00D7"))
                 span.onclick = unifiParental.handleDeleteGroup
                 groupOption.appendChild(span)
-                groupOption.onclick = unifiParental.handleGroupClick              
+                groupOption.onclick = unifiParental.handleGroupClick
                 unifiParental.groupSelect.appendChild(groupOption)
                 }
         })
 },
 
     handleDeleteGroup(event) {
+      if (confirm("Are you sure?")) {
         event.stopPropagation()
         let group = event.target.parentNode.dataset.value
         ajaxDelete('/api/group/' + group, null, (res) => {
             event.target.parentNode.parentNode.removeChild(event.target.parentNode)
         })
+      }
     }
 }
 
@@ -139,11 +143,17 @@ document.onreadystatechange = () => {
         unifiParental.groupSelect = document.getElementById('groups')
         unifiParental.clientSelect = document.getElementById('clients')
 
+        let retrievingOption = document.createElement('option');
+        retrievingOption.setAttribute('value', "");
+        retrievingOption.innerText = "retrieving clients from UniFi ....";
+        unifiParental.clientSelect.appendChild(retrievingOption);
+
         document.getElementById('addGroup').addEventListener('click', unifiParental.handleAddGroup)
+        let firstGroup = null;
 
         ajaxGet('/api/groups', (res) => {
             unifiParental.groups = JSON.parse(res.response)
-            
+            let clicked = false;
             for (let group in unifiParental.groups) {
                 let groupOption = document.createElement('li')
                 let span = document.createElement("span")
@@ -153,24 +163,36 @@ document.onreadystatechange = () => {
                 span.appendChild(document.createTextNode("\u00D7"))
                 span.onclick = unifiParental.handleDeleteGroup
                 groupOption.appendChild(span)
-                groupOption.onclick = unifiParental.handleGroupClick              
+                groupOption.onclick = unifiParental.handleGroupClick
                 unifiParental.groupSelect.appendChild(groupOption)
+                if (!clicked) { // select the first group
+                  firstGroup = groupOption;
+                  clicked = true;
+                }
             }
+
         })
 
         ajaxGet('/api/unifi-clients', (res) => {
             unifiParental.clients = JSON.parse(res.response)
             unifiParental.clients.sort((a, b) => {
-                let name = (client) => { return typeof (client.name) == 'undefined' ? typeof (client.hostname) == 'undefined' ? client.mac : client.hostname : client.name }
+                let name = (client) => {
+                  // case insensitive with mac addresses at the end ('z' < '{')
+                  return (client.name || client.hostname || "{"+client.mac).toLowerCase()
+                }
                 return name(a) < name(b) ? -1 : name(a) > name(b) ? 1 : 0
-            })
+            });
+            unifiParental.clientSelect.removeChild(retrievingOption);
             unifiParental.clients.forEach((client) => {
                 let clientOption = document.createElement('option');
                 clientOption.setAttribute('value', client.mac);
-                clientOption.innerText = typeof (client.name) == 'undefined' ? typeof (client.hostname) == 'undefined' ? client.mac : client.hostname : client.name
+                clientOption.innerText = client.name || client.hostname || client.mac
                 unifiParental.clientSelect.appendChild(clientOption);
             })
-            // })
+            if (firstGroup != null) {
+              firstGroup.click()
+            }
         })
+
     }
 };

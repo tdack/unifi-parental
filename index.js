@@ -10,12 +10,15 @@ const path = require('path')
 const schedule = require('node-schedule')
 const spdy = require('spdy')
 const unifi = require('node-unifi')
+const moment = require('moment')
 
 let app = express(),
     data = {},
+    host,
     port,
     timerJobs = {},
-    controller
+    controller,
+    clients = {}
 
 // Add config from .env to process.env
 dotenv.config({ path: path.resolve(__dirname, '.env') })
@@ -38,6 +41,7 @@ nconf.file('config', { file: path.resolve(__dirname, configFile) })
 /* set initial data from config file */
 data = nconf.get('data')
 port = nconf.get('server:port') || 4000
+host = nconf.get('server:host') || '0.0.0.0'
 
 const serverOptions = {
     key: fs.readFileSync(path.resolve(__dirname, './' + nconf.get('server:key'))),
@@ -77,6 +81,8 @@ function controllerLogin(callback) {
 * @param  {string} timerdata[].time - 24hr time that timer is to occur
 */
 function consolidateTimers(timerdata) {
+    return timerdata;
+
     function addDayToBitmap(mask, day) {
         /*jslint bitwise: true*/
         mask |= 1 << day;
@@ -129,54 +135,65 @@ function consolidateTimers(timerdata) {
     return actions.sort( (a,b) => { return a.time < b.time ? -1 : a.time > b.time ? 1 : a.action - b.action})
 }
 
-function scheduleJobs(group, scheduleActions) {
+function cancelAllJobs(group) {
     if (timerJobs.hasOwnProperty(group)) {
         for (let i = 0; i< timerJobs[group].length; i++) {
-            timerJobs[group][i].cancel()
-        }
-        timerJobs[group] = []
-    } else {
-        timerJobs[group] = []
-    }
-    scheduleActions.forEach((el) => {
-        for (let day=0; day < 7; day++) {
-            if ((el.days & 1 << day)) {
-                let hour = parseInt(el.time.slice(0,2))
-                let minute = parseInt(el.time.slice(2,4))
-                if (el.time == "2400") {
-                    hour = 23
-                    minute = 59
-                }
-                timerJobs[group].push(schedule.scheduleJob({ hour: hour, minute: minute, dayOfWeek: day < 6 ? day + 1 : 0 }, () => {
-                    if (el.action == 1) {
-                        controllerLogin(() => {
-                            data.blocked.forEach((client) => {
-                                controller.unblockClient(nconf.get('controller:site'), '' + client, (err, result) => {
-                                    if (err) {
-                                        debug('Error: ', err)
-                                        return
-                                    }
-                                    debug('Access allowed @ ', hour, ':', minute, 'for', client)
-                                })
-                            })
-                        })
-                    } else {
-                        controllerLogin(() => {
-                            data.blocked.forEach((client) => {
-                                controller.blockClient(nconf.get('controller:site'), '' + client, (err, result) => {
-                                    if (err) {
-                                        debug('Error: ', err)
-                                        return
-                                    }
-                                    debug('Access blocked @ ', hour, ':', minute, 'for', client)
-                                })
-                            })
-                        })
-                    }
-                }))
+            if (timerJobs[group][i] != null) {
+              timerJobs[group][i].cancel();
             }
         }
+    }
+    timerJobs[group] = [];
+}
+
+const job = (group, accessAllowed, date) => {
+    const unifiClient = (...args) => {
+      if (accessAllowed) {
+        return controller.unblockClient(...args);
+      } else {
+        return controller.blockClient(...args);
+      }
+    };
+
+    controllerLogin(() => {
+        data[group].block.forEach((client) => {
+            unifiClient(nconf.get('controller:site'), '' + client, (err, result) => {
+                  if (err) {
+                      debug('Error: ', err)
+                      return
+                  }
+                  debug(`${group} ${date} ${accessAllowed ? "allowed": "blocked"} for ${clients[client] || client}`)
+            })
+        })
     })
+}
+
+function scheduleJobs(group, scheduleActions) {
+    cancelAllJobs(group);
+    const jobStates = {};
+    const now = moment();
+    const nowInt = now.unix();
+    scheduleActions.forEach((el) => {
+        let hour = parseInt(el.time.slice(0,2))
+        let minute = parseInt(el.time.slice(2,4))
+        if (el.time == "2400") {
+            hour = 23
+            minute = 59
+        }
+        const dayOfWeek = (el.day + 1) % 7;
+        const scheduleMoment = moment().day(dayOfWeek).hour(hour).minute(minute).second(0);
+        jobStates[scheduleMoment.unix()] = el.action;
+        timerJobs[group].push(
+            schedule.scheduleJob({ hour, minute, dayOfWeek }, () => job(group, el.action == 1, scheduleMoment.format("ddd HH:mm")))
+        )
+    })
+    // look for current state
+    const jobTimes = Object.keys(jobStates).map(t => parseInt(t)).sort((a, b) => a - b);
+    const currentJob = jobTimes.reduce(( accumulator, currentValue ) => nowInt > currentValue ? currentValue : accumulator,  0);
+    if (currentJob != null) {
+      // set the current state
+      job(group, jobStates[currentJob], "now is")
+    }
 }
 
 app.use(morgan('dev'))
@@ -243,17 +260,28 @@ app.post('/api/blocked-clients/:group', (req, res) => {
 app.get('/api/unifi-clients', (req, res) => {
     controllerLogin( () =>
         controller.getAllUsers(nconf.get('controller:site'), (err, users) => {
-            res.status(200).json(users[0])
+            clients = {};
+            users[0].forEach(user => clients[user.mac] = user.name || user.hostname || user.mac );
+            res.status(200).json(users[0] || [{name: "Error: " + err.code}])
         })
     )
 })
 
 spdy.createServer(serverOptions, app)
-    .listen(port, (error) => {
+    .listen(port, host, (error) => {
         if (error) {
             console.error(error)
             return process.exit(1)
         } else {
-            debug('Listening on port', port)          
+            debug('Listening on port', port);
+            controllerLogin( () =>
+                controller.getAllUsers(nconf.get('controller:site'), (err, users) => {
+                    users[0].forEach(user => clients[user.mac] = user.name || user.hostname || user.mac );
+                })
+            )
+
+            Object.values(data).forEach(group => {
+              scheduleJobs(group.name, group.timers);
+            });
         }
     })
