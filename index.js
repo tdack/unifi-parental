@@ -200,6 +200,16 @@ app.use(morgan('dev'))
 app.use(bodyParser.json())
 app.use(express.static(__dirname + '/public'))
 
+const favicon = new Buffer('iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAAAAmJLR0QA/4ePzL8AAAAJcEhZcwAAAEgAAABIAEbJaz4AAAOGSURBVEjHhdVNbJRVFAbgZ36YdgZaWrCkP5JSBNGgITYm4EITA0owShRXokYSXRlXGhNd6FY2hoXRSEIIiQtDSECJiFETNSippRDBiC2IQMtQfsoA/ZtOZ74ZF9+0ztAC526+e88573nve++5XwTNNnveIoskxQWGXdOv3ykXXRVo0m65Nq0WqJdQkpdxxQ92+jeOlIetlhBaXJMm9ysYN+qmQIN6KXFRU5ZU717X7CWGvECnxooAImJqxfTLWaJeXESlFQ34TJcJiGrzpTGlW0ZBj6c86bD8DF/W15aKEkXRkKOG3WojDjrksO+NzPCNOmpQUZl23hmZGUFpXXImdRmY4bvhjMmQfrijE7oFFQElw/brUVLSY7eMUpUCJxwP42PlpayblokqKsgZcdY3drigiJy0GvUSApPGDen1qWPyodrMFxgV06pFs7kKrhswaGS6akSdxZapFxhx2WVpBQkJo/Cap8UQERWXMEfslkMLQeISEuKiIojo9HLo+tWHas1mkXJoZBbfHG/rIo4OzWrCK1GVXO8egVEpKRk3QtWnLaHF4hCg1nJNRhQrkud5wBZrFFzVqEGfbx1wZfqkIuZqlQwBxrTr0D9docZiaz3jcUkT2kXUardSmz16y2UiGrQIQoCzHrVBn/5yo7zkDQ8Zc9DvzhpTtMB6671rnW1+c1VRnTVWGAor7jLhD5slRNVZq9ukQdusMFdcTEzCClvdkHPE+5ZZ4AUHZP0YArwjI+9vb3nRR44rGPeJjirtozrsMy5w0892GzBpzMehc5PTSgrSTrsmr+i859QgpkGTpCgS3nRBSUnehKKStNdDDU7rc5+Y1nK1wAUn5XVYZ6MGfX7xk8tOyWhDXLzcD8dCgCG91qmpIFxniXGvesUSMZ2e8KB9VmmsiMnqlg4/a23QJ6h4LnJO+Mq5irWMHhcVpud5PR4zZ+pStNjuetWLE5isgiwKFCvmV2zV+L/MUavtrcC/2wjstqq6Q1Ke1V9V4/aj6JKNkmHi1IOSd07WUgtn7bxqu2S7XVPNF5teDqQFVpp3F4isvXa4NJsrqsl7eu+4kXHf6ZxSv5oBJRPOyXlE6jYsSv7yuUNyd6JYa4vDsrPwyOu1Sao6PDYDoOC8tGYL1VTxKOi10x5jdxUZCZ0+8KfRMo+CQfttrLrKt2UQnsiQk/4xbL6k647Y6Qvds/zi/AdBe59QMrvwCwAAAABJRU5ErkJggg==', 'base64'); 
+app.get("/favicon.ico", function(req, res) {
+    res.statusCode = 200;
+    res.setHeader('Content-Length', favicon.length);
+    res.setHeader('Content-Type', 'image/x-icon');
+    res.setHeader("Cache-Control", "public, max-age=2592000"); // expires after a month
+    res.setHeader("Expires", new Date(Date.now() + 2592000000).toUTCString());
+    res.end(favicon);
+});
+
 app.get('/api/timer/:group', (req, res) => {
     let group = req.params.group
     data[group].timers.sort( (a,b) => { return a.day < b.day ? -1 : a.day > b.day ? 1 : a.time < b.time ? -1 : a.time > b.time ? 1 : a.action - b.action })
