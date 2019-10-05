@@ -1,3 +1,17 @@
+# Unmaintained!
+
+## Please Note:
+
+This project is no longer actively maintained by the original author as the teenagers have left the building and I don't have a use case for it any more.
+
+Please feel free to fork, improve, customise and do what you wish with it.
+
+Issues will no longer be actioned.
+
+Thanks for the interest.
+
+# ================================
+
 # Unifi-parental
 
 Time based block/unblock of clients for a Unifi based network.

@@ -12,8 +12,8 @@
     "port": 4000             /* port server is to listen on */
   },
   "data": {
-    "Group": {
-        "name": "Group Name",
+    "Group Name": {            /* name below must match this*/
+        "name": "Group Name",  /* must match the name on the line above */
         "timers": [
             /* array of objects:
             * {
@@ -115,7 +115,7 @@
               "time": "2230"
             }
           ],
-          "blocked": [ /* array of mac addresses to be blocked */
+          "block": [ /* array of mac addresses to be blocked */
             "b8:27:eb:de:91:68",
             "c8:60:00:9a:ba:ca",
             "d8:1d:72:c6:20:96",
